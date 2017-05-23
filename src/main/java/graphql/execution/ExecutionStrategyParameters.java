@@ -1,5 +1,6 @@
 package graphql.execution;
 
+import graphql.PublicApi;
 import graphql.language.Field;
 
 import java.util.List;
@@ -10,13 +11,14 @@ import static graphql.Assert.assertNotNull;
 /**
  * The parameters that are passed to execution strategies
  */
-public class ExecutionParameters {
+@PublicApi
+public class ExecutionStrategyParameters {
     private final TypeInfo typeInfo;
     private final Object source;
     private final Map<String, Object> arguments;
     private final Map<String, List<Field>> fields;
 
-    private ExecutionParameters(TypeInfo typeInfo, Object source, Map<String, List<Field>> fields, Map<String, Object> arguments) {
+    private ExecutionStrategyParameters(TypeInfo typeInfo, Object source, Map<String, List<Field>> fields, Map<String, Object> arguments) {
         this.typeInfo = assertNotNull(typeInfo, "typeInfo is null");
         this.fields = assertNotNull(fields, "fields is null");
         this.source = source;
@@ -45,7 +47,7 @@ public class ExecutionParameters {
 
     @Override
     public String toString() {
-        return String.format("ExecutionParameters { typeInfo=%s, source=%s, fields=%s }",
+        return String.format("ExecutionStrategyParameters { typeInfo=%s, source=%s, fields=%s }",
                 typeInfo, source, fields);
     }
 
@@ -80,8 +82,8 @@ public class ExecutionParameters {
             return this;
         }
 
-        public ExecutionParameters build() {
-            return new ExecutionParameters(typeInfo, source, fields, arguments);
+        public ExecutionStrategyParameters build() {
+            return new ExecutionStrategyParameters(typeInfo, source, fields, arguments);
         }
     }
 }

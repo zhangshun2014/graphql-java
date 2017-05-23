@@ -48,7 +48,7 @@ public abstract class ExecutionStrategy {
     protected final ValuesResolver valuesResolver = new ValuesResolver();
     protected final FieldCollector fieldCollector = new FieldCollector();
 
-    public abstract ExecutionResult execute(ExecutionContext executionContext, ExecutionParameters parameters) throws NonNullableFieldWasNullException;
+    public abstract ExecutionResult execute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) throws NonNullableFieldWasNullException;
 
     /**
      * Handle exceptions which occur during data fetching. By default, add all exceptions to the execution context's
@@ -69,7 +69,7 @@ public abstract class ExecutionStrategy {
     }
 
 
-    protected ExecutionResult resolveField(ExecutionContext executionContext, ExecutionParameters parameters, List<Field> fields) {
+    protected ExecutionResult resolveField(ExecutionContext executionContext, ExecutionStrategyParameters parameters, List<Field> fields) {
         GraphQLObjectType type = parameters.typeInfo().castType(GraphQLObjectType.class);
         GraphQLFieldDefinition fieldDef = getFieldDef(executionContext.getGraphQLSchema(), type, fields.get(0));
 
@@ -81,6 +81,7 @@ public abstract class ExecutionStrategy {
         DataFetchingEnvironment environment = new DataFetchingEnvironmentImpl(
                 parameters.source(),
                 argumentValues,
+                executionContext.getContext(),
                 executionContext.getRoot(),
                 fields,
                 fieldType,
@@ -113,7 +114,7 @@ public abstract class ExecutionStrategy {
                 .build();
 
 
-        ExecutionParameters newParameters = ExecutionParameters.newParameters()
+        ExecutionStrategyParameters newParameters = ExecutionStrategyParameters.newParameters()
                 .typeInfo(fieldTypeInfo)
                 .fields(parameters.fields())
                 .arguments(argumentValues)
@@ -125,7 +126,7 @@ public abstract class ExecutionStrategy {
         return result;
     }
 
-    protected ExecutionResult completeValue(ExecutionContext executionContext, ExecutionParameters parameters, List<Field> fields) {
+    protected ExecutionResult completeValue(ExecutionContext executionContext, ExecutionStrategyParameters parameters, List<Field> fields) {
         TypeInfo typeInfo = parameters.typeInfo();
         Object result = parameters.source();
         GraphQLType fieldType = parameters.typeInfo().type();
@@ -179,7 +180,7 @@ public abstract class ExecutionStrategy {
 
         Map<String, List<Field>> subFields = fieldCollector.collectFields(collectorParameters, fields);
 
-        ExecutionParameters newParameters = ExecutionParameters.newParameters()
+        ExecutionStrategyParameters newParameters = ExecutionStrategyParameters.newParameters()
                 .typeInfo(typeInfo.asType(resolvedType))
                 .fields(subFields)
                 .source(result).build();
@@ -228,13 +229,13 @@ public abstract class ExecutionStrategy {
         return new ExecutionResultImpl(serialized, null);
     }
 
-    protected ExecutionResult completeValueForList(ExecutionContext executionContext, ExecutionParameters parameters, List<Field> fields, Iterable<Object> result) {
+    protected ExecutionResult completeValueForList(ExecutionContext executionContext, ExecutionStrategyParameters parameters, List<Field> fields, Iterable<Object> result) {
         List<Object> completedResults = new ArrayList<>();
         TypeInfo typeInfo = parameters.typeInfo();
         GraphQLList fieldType = typeInfo.castType(GraphQLList.class);
         for (Object item : result) {
 
-            ExecutionParameters newParameters = ExecutionParameters.newParameters()
+            ExecutionStrategyParameters newParameters = ExecutionStrategyParameters.newParameters()
                     .typeInfo(typeInfo.asType(fieldType.getWrappedType()))
                     .fields(parameters.fields())
                     .source(item).build();

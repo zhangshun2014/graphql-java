@@ -7,7 +7,7 @@ import graphql.language.Field
 import graphql.schema.GraphQLList
 import spock.lang.Specification
 
-import static graphql.execution.ExecutionParameters.newParameters
+import static ExecutionStrategyParameters.newParameters
 
 class ExecutionStrategyTest extends Specification {
 
@@ -17,14 +17,14 @@ class ExecutionStrategyTest extends Specification {
         executionStrategy = new ExecutionStrategy() {
 
             @Override
-            ExecutionResult execute(ExecutionContext executionContext, ExecutionParameters parameters) {
+            ExecutionResult execute(ExecutionContext executionContext, ExecutionStrategyParameters parameters) {
                 return null
             }
         }
     }
 
     def buildContext() {
-        new ExecutionContext(null, null, null, executionStrategy, executionStrategy, executionStrategy, null, null, null, null)
+        new ExecutionContext(null, null, null, executionStrategy, executionStrategy, executionStrategy, null, null, null, null, null)
     }
 
 
